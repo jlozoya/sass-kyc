@@ -104,7 +104,7 @@ jobs:
 
             if [ ! -d ".git" ]; then
               echo "🔁 Cloning repository"
-              git clone https://github.com/TU_USER/TU_REPO.git .
+              git clone git@github.com:jlozoya/sass-kyc.git .
             else
               echo "🔁 Updating repository"
               git fetch --all
