@@ -1,0 +1,43 @@
+# Root EditorConfig file
+root = true
+
+# ---------------------------------------------------------
+# Global defaults
+# ---------------------------------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# ---------------------------------------------------------
+# Python-specific (PEP 8)
+# ---------------------------------------------------------
+[*.py]
+indent_size = 4
+max_line_length = 88   # matches Black default
+trim_trailing_whitespace = true
+
+# ---------------------------------------------------------
+# JSON / YAML
+# ---------------------------------------------------------
+[*.json]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
+
+# ---------------------------------------------------------
+# Vue / JS / TS
+# ---------------------------------------------------------
+[*.{js,ts,jsx,tsx,vue}]
+indent_size = 2
+
+# ---------------------------------------------------------
+# Markdown
+# ---------------------------------------------------------
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
