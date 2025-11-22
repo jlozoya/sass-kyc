@@ -2,8 +2,10 @@ fastapi
 uvicorn[standard]
 motor
 pydantic
+pydantic-settings
 python-dotenv
 email-validator
+anyio
 
 # Para tests
 pytest

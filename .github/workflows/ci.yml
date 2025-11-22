@@ -114,6 +114,14 @@ jobs:
             echo "🐍 Updating backend"
             cd "$APP_DIR/backend"
 
+            # Asegurar python3-venv
+            if ! python3 -m venv --help >/dev/null 2>&1; then
+              echo "📦 Installing python3-venv"
+              sudo apt-get update
+              sudo apt-get install -y python3-venv
+            fi
+
+            # Crear venv si no existe
             if [ ! -d ".venv" ]; then
               python3 -m venv .venv
             fi
@@ -123,29 +131,44 @@ jobs:
             pip install -r requirements.txt
 
             echo "📝 Creating backend .env"
-            cat <<EOF > $APP_DIR/backend/.env
+            cat <<EOF > "$APP_DIR/backend/.env"
             MONGODB_URI=${{ secrets.BACKEND_MONGODB_URI }}
-            MONGODB_DB_NAME=${{ secrets.BACKEND_MONGODB_DB_NAME }}
+            MONGODB_DB_NAME=${{ secrets.BACKEND_DB_NAME }}
             EOF
 
             echo "🌐 Updating frontend"
             cd "$APP_DIR/frontend"
 
             echo "📝 Creating frontend .env"
-            cat <<EOF > $APP_DIR/frontend/.env
+            cat <<EOF > "$APP_DIR/frontend/.env"
             VITE_API_BASE_URL=${{ secrets.FRONTEND_API_URL }}
             EOF
 
             npm install
             npm run build
 
-            TARGET_DIR="/opt/bitnami/apache/htdocs/sass-kyc"
-            sudo mkdir -p "$TARGET_DIR"
-            sudo rm -rf "$TARGET_DIR"/*
-            sudo cp -r dist/* "$TARGET_DIR"/
+            echo "⚙️ Ensuring PM2 is installed"
+            if ! command -v pm2 >/dev/null 2>&1; then
+              sudo npm install -g pm2
+            fi
 
-            echo "♻️ Restarting services"
-            # sudo systemctl restart sasskyc-backend
-            # or PM2 here...
+
+            echo "🚀 Restarting backend with PM2 (python -m uvicorn)"
+            BACKEND_VENV="$APP_DIR/backend/.venv"
+
+            pm2 delete sasskyc-backend || true
+
+            pm2 start "$BACKEND_VENV/bin/python" \
+              --name sasskyc-backend \
+              --cwd "$APP_DIR/backend" -- \
+              -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+            echo "🚀 Restarting frontend with PM2 (Vite preview)"
+            cd "$APP_DIR/frontend"
+            pm2 delete sasskyc-frontend || true
+            pm2 start npm --name sasskyc-frontend -- run preview
+
+            echo "💾 Saving PM2 process list"
+            pm2 save
 
             echo "✅ Deploy completed!"
