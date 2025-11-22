@@ -41,19 +41,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Wait for MongoDB
-        run: |
-          for i in {1..10}; do
-            if mongosh --quiet --eval "db.runCommand({ ping: 1 })" localhost:27017/sasskyc; then
-              echo "Mongo is up!"
-              exit 0
-            fi
-            echo "Waiting for Mongo..."
-            sleep 3
-          done
-          echo "Mongo did not start in time"
-          exit 1
-
       - name: Run backend tests
         working-directory: backend
         run: pytest

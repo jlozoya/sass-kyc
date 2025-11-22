@@ -28,6 +28,8 @@ pip install -r requirements.txt
 Open the Mongo shell and create the database and application user:
 
 ```bash
+mongosh
+
 use sasskyc
 
 db.createUser({
