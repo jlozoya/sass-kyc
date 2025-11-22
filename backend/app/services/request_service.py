@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from .risk_engine import compute_risk
 from app.schemas.request import VerificationRequestCreate
 
@@ -9,7 +9,7 @@ def build_request_document(payload: VerificationRequestCreate) -> dict:
         country=payload.country,
         document_number=payload.document_number,
     )
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     return {
         "full_name": payload.full_name,
         "email": payload.email,

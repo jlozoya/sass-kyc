@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.db import get_collection
 from app.schemas.request import (
@@ -45,7 +45,7 @@ async def create_request(
         document_number=payload.document_number,
     )
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     doc = {
         "full_name": payload.full_name,
@@ -113,7 +113,7 @@ async def update_status(
 
     result = await col.find_one_and_update(
         {"_id": oid},
-        {"$set": {"status": payload.status, "updated_at": datetime.utcnow()}},
+        {"$set": {"status": payload.status, "updated_at": datetime.now(timezone.utc)}},
         return_document=True,
     )
 
