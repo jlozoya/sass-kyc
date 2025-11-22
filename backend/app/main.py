@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.api import requests as requests_router
 
-app = FastAPI(title="REM KYC Onboarding - MongoDB")
+app = FastAPI()
 
-origins = ["http://localhost:5173"]
+origins = [
+    "https://sasskyc.lozoya.org",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,4 +18,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(requests_router.router)
+app.include_router(requests_router, prefix="/requests", tags=["requests"])

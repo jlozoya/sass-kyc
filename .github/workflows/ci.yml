@@ -152,7 +152,6 @@ jobs:
               sudo npm install -g pm2
             fi
 
-
             echo "🚀 Restarting backend with PM2 (python -m uvicorn)"
             BACKEND_VENV="$APP_DIR/backend/.venv"
 
@@ -162,11 +161,6 @@ jobs:
               --name sasskyc-backend \
               --cwd "$APP_DIR/backend" -- \
               -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-            echo "🚀 Restarting frontend with PM2 (Vite preview)"
-            cd "$APP_DIR/frontend"
-            pm2 delete sasskyc-frontend || true
-            pm2 start npm --name sasskyc-frontend -- run preview
 
             echo "💾 Saving PM2 process list"
             pm2 save
