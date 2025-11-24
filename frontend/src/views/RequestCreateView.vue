@@ -27,7 +27,6 @@ const successMessage = ref<string | null>(null)
 async function handleSubmit(payload: CreateRequestPayload) {
   const created = await createRequest(payload)
   successMessage.value = 'Solicitud creada correctamente.'
-  // Opcional: redirigir al detalle
   await router.push({ name: 'requests-detail', params: { id: created.id } })
 }
 </script>

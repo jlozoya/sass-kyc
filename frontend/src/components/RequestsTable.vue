@@ -39,8 +39,8 @@
         <tr
           v-for="item in items"
           :key="item.id"
-          class="hover:bg-slate-50 cursor-pointer"
-          @click="$emit('rowClick', item)"
+          class="cursor-pointer hover:bg-slate-50"
+          @click="$emit('row-click', item)"
         >
           <td class="px-4 py-3 text-sm font-medium text-slate-900">
             {{ item.full_name }}
@@ -58,6 +58,7 @@
             {{ formatDate(item.created_at) }}
           </td>
         </tr>
+
         <tr v-if="!items.length && !loading">
           <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
             No se encontraron solicitudes.
@@ -66,10 +67,16 @@
       </tbody>
     </table>
 
-    <div v-if="loading" class="px-4 py-3 text-sm text-slate-500 border-t border-slate-100">
+    <div
+      v-if="loading"
+      class="border-t border-slate-100 px-4 py-3 text-sm text-slate-500"
+    >
       Cargando solicitudes...
     </div>
-    <div v-if="error" class="px-4 py-3 text-sm text-rose-600 border-t border-rose-100 bg-rose-50">
+    <div
+      v-if="error"
+      class="border-t border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+    >
       {{ error }}
     </div>
   </div>
@@ -79,14 +86,14 @@
 import type { VerificationRequest } from '../types/request'
 import StatusBadge from './StatusBadge.vue'
 
-const props = defineProps<{
+defineProps<{
   items: VerificationRequest[]
   loading?: boolean
   error?: string | null
 }>()
 
 defineEmits<{
-  (e: 'rowClick', item: VerificationRequest): void
+  (e: 'row-click', item: VerificationRequest): void
 }>()
 
 function formatDate(value: string): string {

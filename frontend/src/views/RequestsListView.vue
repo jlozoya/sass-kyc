@@ -1,9 +1,15 @@
 <template>
   <section class="space-y-4">
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <header
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+    >
       <div>
-        <h2 class="text-lg font-semibold text-slate-900">Solicitudes de verificación</h2>
-        <p class="text-sm text-slate-500">Registra y consulta solicitudes de onboarding KYC.</p>
+        <h2 class="text-lg font-semibold text-slate-900">
+          Solicitudes de verificación
+        </h2>
+        <p class="text-sm text-slate-500">
+          Registra y consulta solicitudes de onboarding KYC.
+        </p>
       </div>
       <RouterLink
         to="/requests/new"
@@ -18,7 +24,9 @@
       @submit.prevent="loadRequests"
     >
       <div class="flex-1">
-        <label class="block text-xs font-medium text-slate-600"> Buscar por nombre </label>
+        <label class="block text-xs font-medium text-slate-600">
+          Buscar por nombre
+        </label>
         <input
           v-model="filters.name"
           type="text"
@@ -47,12 +55,17 @@
       </button>
     </form>
 
-    <RequestsTable :items="items" :loading="loading" :error="error" @rowClick="goToDetail" />
+    <RequestsTable
+      :items="items"
+      :loading="loading"
+      :error="error"
+      @row-click="goToDetail"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, onBeforeUnmount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { listRequests } from '../api/requests'
 import RequestsTable from '../components/RequestsTable.vue'
@@ -70,6 +83,21 @@ const filters = reactive<{
 }>({
   name: '',
   status: ''
+})
+
+const isCameraOpen = ref(false)
+let mediaStream: MediaStream | null = null
+
+function closeCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop())
+    mediaStream = null
+  }
+  isCameraOpen.value = false
+}
+
+onBeforeUnmount(() => {
+  closeCamera()
 })
 
 async function loadRequests() {

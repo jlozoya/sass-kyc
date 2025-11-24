@@ -6,6 +6,7 @@ pydantic-settings
 python-dotenv
 email-validator
 anyio
+python-multipart
 
 # Para tests
 pytest

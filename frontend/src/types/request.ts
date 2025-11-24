@@ -10,6 +10,7 @@ export interface VerificationRequest {
   document_type: string
   document_number: string
   document_image_url: string
+  original_document_filename: string
   status: RequestStatus
   risk_score: number
   risk_level: RiskLevel
