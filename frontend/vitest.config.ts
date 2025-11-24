@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite"
+import { defineConfig } from "vitest/config"
 import vue from "@vitejs/plugin-vue"
 
 export default defineConfig({
@@ -7,6 +7,6 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: "./src/tests/setup.ts"
-  }
+    setupFiles: "./src/tests/setup.ts",
+  },
 })
