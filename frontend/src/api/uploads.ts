@@ -4,13 +4,13 @@ export interface UploadResponse {
   content_type: string
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
 export async function uploadFile(file: File): Promise<UploadResponse> {
   const form = new FormData()
   form.append('file', file)
 
-  const res = await fetch(`${API_BASE_URL}/uploads/document`, {
+  const res = await fetch(`${VITE_API_BASE_URL}/uploads/document`, {
     method: 'POST',
     body: form
   })
