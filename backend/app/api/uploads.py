@@ -5,9 +5,11 @@ import uuid
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
 
+# Directorio base donde se guardan los archivos subidos.
 UPLOAD_DIR = Path("static/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+# Tipos MIME permitidos para los documentos subidos.
 ALLOWED_CONTENT_TYPES = {
     "image/png",
     "image/jpeg",
@@ -18,8 +20,25 @@ ALLOWED_CONTENT_TYPES = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
 
+
 @router.post("/document")
 async def upload_document(file: UploadFile = File(...)):
+    """
+    Sube un documento o imagen al servidor.
+
+    - Valida que el `content_type` del archivo esté en `ALLOWED_CONTENT_TYPES`.
+    - Genera un nombre físico único (`stored_name`) usando UUID + extensión original.
+    - Guarda el archivo en `static/uploads/{stored_name}`.
+    - Devuelve:
+      - `url`: URL relativa para acceder/visualizar el archivo (por ejemplo: `/static/uploads/...`).
+      - `filename`: nombre original del archivo enviado por el usuario.
+      - `stored_name`: nombre físico generado (UUID).
+      - `content_type`: tipo de contenido detectado por FastAPI.
+
+    Esta respuesta se puede usar en el frontend para:
+    - mostrar una vista previa (imágenes),
+    - o generar un botón de descarga usando la ruta `/uploads/download/{stored_name}`.
+    """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=400,
@@ -37,9 +56,9 @@ async def upload_document(file: UploadFile = File(...)):
     url = f"/static/uploads/{filename}"
 
     return {
-        "url": url,                 # para preview / abrir
-        "filename": file.filename,  # nombre original
-        "stored_name": filename,    # ⬅️ nombre físico (UUID + ext)
+        "url": url,
+        "filename": file.filename,
+        "stored_name": filename,
         "content_type": file.content_type,
     }
 
@@ -47,8 +66,14 @@ async def upload_document(file: UploadFile = File(...)):
 @router.get("/download/{stored_name}")
 async def download_document(stored_name: str):
     """
-    Fuerza la descarga del archivo guardado en static/uploads/{stored_name}.
-    stored_name es el nombre que generamos con UUID.
+    Fuerza la descarga de un archivo previamente subido.
+
+    - `stored_name`: nombre físico del archivo (UUID + extensión)
+      tal como se guardó en `static/uploads/`.
+    - Si el archivo no existe en disco, devuelve 404.
+
+    La respuesta se envía como `application/octet-stream` para que el navegador
+    trate el archivo como descarga directa.
     """
     file_path = UPLOAD_DIR / stored_name
 
@@ -59,5 +84,5 @@ async def download_document(stored_name: str):
     return FileResponse(
         path=file_path,
         media_type="application/octet-stream",
-        filename=stored_name,      # o podrías buscar el nombre original si lo guardas en BD
+        filename=stored_name,
     )
