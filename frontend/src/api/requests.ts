@@ -9,6 +9,7 @@ export interface CreateRequestPayload {
   document_type: string
   document_number: string
   document_image_url: string
+  original_document_filename: string
 }
 
 export function listRequests(params?: { name?: string; status?: RequestStatus | '' }) {
@@ -22,6 +23,7 @@ export function listRequests(params?: { name?: string; status?: RequestStatus | 
 export function createRequest(payload: CreateRequestPayload) {
   return apiFetch<VerificationRequest>('/requests', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
 }

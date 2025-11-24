@@ -18,6 +18,7 @@ def build_request_document(payload: VerificationRequestCreate) -> dict:
         "document_type": payload.document_type,
         "document_number": payload.document_number,
         "document_image_url": payload.document_image_url,
+        "original_document_filename": payload.original_document_filename,
         "status": "pending",
         "risk_score": risk.score,
         "risk_level": risk.level,

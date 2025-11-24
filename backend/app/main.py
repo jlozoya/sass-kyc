@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.requests import router as requests_router
+from app.api.uploads import router as uploads_router
 
 app = FastAPI()
 
@@ -19,8 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(requests_router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
+app.include_router(requests_router)
+app.include_router(uploads_router)
 
 @app.get("/health")
 async def health():

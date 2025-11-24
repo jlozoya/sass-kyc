@@ -13,6 +13,7 @@ class VerificationRequestBase(BaseModel):
     document_type: str
     document_number: str
     document_image_url: str
+    original_document_filename: str = ""
 
 class VerificationRequestCreate(VerificationRequestBase):
     pass
@@ -26,5 +27,4 @@ class VerificationRequestOut(VerificationRequestBase):
     risk_score: int
     risk_level: RiskLevel
     created_at: datetime
-
     model_config = {"from_attributes": True}
