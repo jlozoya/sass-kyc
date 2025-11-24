@@ -38,3 +38,9 @@ export function updateRequestStatus(id: string, status: RequestStatus) {
     body: JSON.stringify({ status })
   })
 }
+
+export function deleteRequest(id: string) {
+  return apiFetch<void>(`/requests/${id}`, {
+    method: 'DELETE'
+  })
+}

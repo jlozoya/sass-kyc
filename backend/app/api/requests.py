@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from bson import ObjectId
 from datetime import datetime, timezone
-
+from pathlib import Path
 from app.core.db import get_collection
 from app.schemas.request import (
     VerificationRequestCreate,
@@ -12,6 +12,7 @@ from app.services.risk_engine import compute_risk
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
+UPLOAD_BASE_DIR = Path("static")
 
 def serialize_request(doc) -> VerificationRequestOut:
     return VerificationRequestOut(
@@ -30,10 +31,8 @@ def serialize_request(doc) -> VerificationRequestOut:
         created_at=doc["created_at"],
     )
 
-
 async def get_requests_collection():
     return get_collection()
-
 
 @router.post("", response_model=VerificationRequestOut)
 async def create_request(
@@ -123,3 +122,29 @@ async def update_status(
         raise HTTPException(status_code=404, detail="Request not found")
 
     return serialize_request(result)
+
+@router.delete("/{request_id}", status_code=204)
+async def delete_request(request_id: str, col=Depends(get_requests_collection)):
+    try:
+        oid = ObjectId(request_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+
+    doc = await col.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    await col.delete_one({"_id": oid})
+
+    url = doc.get("document_image_url")
+    if isinstance(url, str) and url.startswith("/static/"):
+        try:
+            relative_path = url.lstrip("/")
+            file_path = Path(relative_path)
+
+            full_path = UPLOAD_BASE_DIR.parent / file_path
+            if full_path.is_file():
+                full_path.unlink()
+        except Exception:
+            pass
+    return
