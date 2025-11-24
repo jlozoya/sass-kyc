@@ -159,6 +159,27 @@
             {{ statusSuccess }}
           </p>
         </div>
+
+        <div class="bg-white border border-rose-200 rounded-lg p-4 space-y-3">
+          <p class="text-sm font-medium text-rose-700">Eliminar solicitud</p>
+          <p class="text-xs text-slate-500">
+            Esta acción eliminará la solicitud y su documento asociado. No se puede deshacer.
+          </p>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-60"
+              :disabled="deleting"
+              @click="onDelete"
+            >
+              <span v-if="!deleting">Eliminar solicitud</span>
+              <span v-else>Eliminando...</span>
+            </button>
+            <p v-if="deleteError" class="text-xs text-rose-600">
+              {{ deleteError }}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div class="space-y-4">
@@ -187,18 +208,22 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
-import { getRequest, updateRequestStatus } from '../api/requests'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { getRequest, updateRequestStatus, deleteRequest } from '../api/requests'
 import StatusBadge from '../components/StatusBadge.vue'
 import type { RequestStatus, VerificationRequest } from '../types/request'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? ''
 const route = useRoute()
+const router = useRouter()
 
 const item = ref<VerificationRequest | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const deleting = ref(false)
+const deleteError = ref<string | null>(null)
 
 const statusToUpdate = ref<RequestStatus>('pending')
 const statusUpdating = ref(false)
@@ -278,6 +303,25 @@ const downloadUrl = computed(() => {
   if (!storedName.value) return ''
   return `${API_BASE_URL}/uploads/download/${storedName.value}`
 })
+async function onDelete() {
+  if (!item.value) return
+  const ok = window.confirm(
+    '¿Estás seguro de eliminar esta solicitud? Esta acción no se puede deshacer.'
+  )
+  if (!ok) return
+
+  deleting.value = true
+  deleteError.value = null
+
+  try {
+    await deleteRequest(item.value.id)
+    await router.push({ name: 'requests-list' })
+  } catch (err: any) {
+    deleteError.value = err?.message ?? 'No se pudo eliminar la solicitud.'
+  } finally {
+    deleting.value = false
+  }
+}
 
 const riskLabel = computed(() => {
   if (!item.value) return ''
